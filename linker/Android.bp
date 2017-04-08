@@ -79,7 +79,7 @@ soong_config_module_type {
     module_type: "cc_defaults",
     config_namespace: "bionic_legacy",
     bool_variables: ["allow_text_relocations"],
-    value_variables: ["sdk_version_overrides"],
+    value_variables: ["sdk_version_overrides", "shim_libs"],
     properties: ["cppflags"],
 }
 
@@ -88,6 +88,9 @@ linker_legacy_cc_defaults {
     soong_config_variables: {
         allow_text_relocations: {
             cppflags: ["-DALLOW_PLATFORM_TEXT_RELOCATIONS"],
+        },
+        shim_libs: {
+            cppflags: ["-DLD_SHIM_LIBS=\"%s\""],
         },
         sdk_version_overrides: {
             cppflags: ["-DSDK_VERSION_OVERRIDES=\"%s\""],
