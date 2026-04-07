@@ -18,6 +18,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <errno.h>
 #include <pthread.h>
 #include <sys/mman.h>
 #include <sys/prctl.h>
@@ -59,8 +60,10 @@ static inline int _rs_allocate(struct _rs** rsp, struct _rsx** rsxp) {
     async_safe_fatal("arc4random data allocation failed: %m");
   }
 
-  // Equivalent to OpenBSD's minherit(MAP_INHERIT_ZERO).
-  if (madvise(p, size, MADV_WIPEONFORK) == -1) {
+  // MADV_WIPEONFORK requires linux 4.14+. on pre-4.14 vendor kernels the call
+  // returns EINVAL; tolerate that gracefully so these devices can still boot.
+  // the trade-off is that arc4random state is not zeroed on fork on such kernels.
+  if (madvise(p, size, MADV_WIPEONFORK) == -1 && errno != EINVAL) {
     async_safe_fatal("arc4random data MADV_WIPEONFORK failed: %m");
   }
 
