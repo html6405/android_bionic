@@ -118,8 +118,12 @@ pthread_internal_t* __pthread_internal_find(pthread_t thread_id, const char* cal
       // TODO: try getting rid of this when Treble lets us keep vendor blobs on an old API level.
       async_safe_format_log(ANDROID_LOG_WARN, "libc", "invalid pthread_t (0) passed to %s", caller);
     } else {
-        async_safe_format_log(ANDROID_LOG_WARN, "libc", "invalid pthread_t (0) passed to %s", caller);
-//      async_safe_fatal("invalid pthread_t %p passed to %s", thread, caller);
+#if defined(ALLOW_LEGACY_INVALID_PTHREAD) && !defined(__LP64__)
+      async_safe_format_log(ANDROID_LOG_WARN, "libc",
+                            "invalid pthread_t %p passed to %s; allowing legacy behavior", thread, caller);
+#else
+      async_safe_fatal("invalid pthread_t %p passed to %s", thread, caller);
+#endif
     }
   }
   return nullptr;

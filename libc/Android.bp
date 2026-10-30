@@ -748,9 +748,26 @@ cc_rustlibs_for_make {
 // libc_bionic.a - home-grown C library code
 // ========================================================
 
+soong_config_module_type {
+    name: "libc_legacy_pthread_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "bionic_legacy",
+    bool_variables: ["allow_invalid_pthread"],
+    properties: ["cppflags"],
+}
+
+libc_legacy_pthread_cc_defaults {
+    name: "libc_legacy_pthread_defaults",
+    soong_config_variables: {
+        allow_invalid_pthread: {
+            cppflags: ["-DALLOW_LEGACY_INVALID_PTHREAD"],
+        },
+    },
+}
+
 cc_library_static {
     name: "libc_bionic",
-    defaults: ["libc_defaults"],
+    defaults: ["libc_defaults", "libc_legacy_pthread_defaults"],
     srcs: [
         "bionic/NetdClientDispatch.cpp",
         "bionic/__bionic_get_shell_path.cpp",
