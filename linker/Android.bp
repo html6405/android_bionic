@@ -74,8 +74,30 @@ cc_object {
 // ========================================================
 
 // Configuration for the linker binary and any of its static libraries.
+soong_config_module_type {
+    name: "linker_legacy_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "bionic_legacy",
+    bool_variables: ["allow_text_relocations"],
+    value_variables: ["sdk_version_overrides"],
+    properties: ["cppflags"],
+}
+
+linker_legacy_cc_defaults {
+    name: "linker_legacy_defaults",
+    soong_config_variables: {
+        allow_text_relocations: {
+            cppflags: ["-DALLOW_PLATFORM_TEXT_RELOCATIONS"],
+        },
+        sdk_version_overrides: {
+            cppflags: ["-DSDK_VERSION_OVERRIDES=\"%s\""],
+        },
+    },
+}
+
 cc_defaults {
     name: "linker_defaults",
+    defaults: ["linker_legacy_defaults"],
 
     cflags: linker_common_flags,
     asflags: linker_common_flags,
